@@ -47,7 +47,7 @@ app.post('/forgotPassword',(req,res,next)=>{                // body will be post
     const {email} = req.body
 
     if(email !== user.email){                               // checking if user exists in database
-        res.send("User Not Registered !")
+        res.send("Invalid email ID !")
         return
     }
 
@@ -63,5 +63,57 @@ app.post('/forgotPassword',(req,res,next)=>{                // body will be post
     console.log(link)                                                               // instead of consol we will send mail to user.email
     res.send("Password reset link has been sent to the registered email.")
 })
+
+
+
+
+app.get('/resetPassword/:name/:token',(req,res)=>{                             // the link given from previous block will redirect here
+
+    const {name , token } = req.params
+
+    if(name !== user.name){                               // checking if user exists in database
+        res.send("Invalid name !")
+        return
+    }
+    const secret = JWT_SECRET + user.password
+    try{
+        const payload = jwt.verify(token,secret)
+        res.render('resetPassword' , {"email" : user.email})
+    }catch(error){
+        console.log(error.message)
+        res.send(error.message)
+    }
+    
+
+})
+
+app.post('/resetPassword/:name/:token',(req,res,next)=>{                // body will be posted on resetPassword page opened just before it
+    
+
+    const {name , token } = req.params
+    const {password1 , password2} = req.body
+
+    if(name !== user.name){                               // checking if user exists in database
+        res.send("Invalid name !")
+        return
+    }
+
+    // if(password1 !== password2){
+    //     res.render('resetPassword' , {"email" : user.email})
+    // }
+
+    const secret = JWT_SECRET + user.password               // once the password will get changed the link cannot be used as 
+    try{                                                    // it will not match with the secret created by new password
+        const payload = jwt.verify(token,secret)
+        user.password = password1
+        res.send(user)
+    }catch(error){
+        console.log(error.message)
+        res.send(error.message)
+    }
+})
+
+
+
 
 
