@@ -62,5 +62,6 @@ app.post('/forgotPassword',(req,res,next)=>{                // body will be post
     const link = `https://localhost:3000/resetPassword/${user.name}/${token}`
     console.log(link)                                                               // instead of consol we will send mail to user.email
     res.send("Password reset link has been sent to the registered email.")
-
 })
+
+
