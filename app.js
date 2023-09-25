@@ -37,3 +37,30 @@ app.get('/',(req,res)=>{
 app.listen(3000,()=>{
     console.log('server is listening at port 3000')
 })
+
+
+app.get('/forgotPassword',(req,res)=>{                             // when we get forgot password request we will open the page for forgot password
+    res.render('forgotPassword')
+})
+
+app.post('/forgotPassword',(req,res,next)=>{                // body will be posted on forgotPassword page opened just before it
+    const {email} = req.body
+
+    if(email !== user.email){                               // checking if user exists in database
+        res.send("User Not Registered !")
+        return
+    }
+
+                                                            // creating one time link
+    const secret = JWT_SECRET + user.password
+    const payload = {
+       "email" : user.email,
+       "name" : user.name
+    }
+
+    const token = jwt.sign(payload,secret,{expiresIn: '15m'})                       // 15 min expiration time
+    const link = `https://localhost:3000/resetPassword/${user.name}/${token}`
+    console.log(link)                                                               // instead of consol we will send mail to user.email
+    res.send("Password reset link has been sent to the registered email.")
+
+})
